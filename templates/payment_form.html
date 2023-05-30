@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<body>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="number" name="amt">
+        <button type="submit">Pay</button>
+    </form>
+</body>
+</html>

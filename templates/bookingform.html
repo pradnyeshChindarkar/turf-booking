@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.js"
+        integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E=" crossorigin="anonymous"></script>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    {% block content %}
+    <style>
+        ::selection {
+			color: #fff;
+			background: #137200d3;
+		}
+    </style>
+    <div class="container">
+        {% if user.is_authenticated %}
+        <h3><span name="groundName">{{ selectedGround.name }}</span> {{ selectedGround.address }}</h3>
+        <p>Phone: {{ selectedGround.phone }}</p>
+        <p>Back to <a href="/bookit">Bookit</a></p>
+        <div>
+            <h2 style="text-align: center; color: #137200;">Get Your Turf Book</h2>
+        </div>
+        <br />
+        <br />
+        <br />
+        <div class="card p-4 shadow">
+            <form method="POST" action="{{ selectedGround.name }}/savebooking" onsubmit="handle_form_submission()">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="exampleFormControlInput1">Name</label>
+                        <input type="text" name="name" class="form-control" id="exampleFormControlInput1"
+                            placeholder="Enter your Team name" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="exampleFormControlInput2">Email address</label>
+                        <input type="email" name="email" class="form-control" id="exampleFormControlInput2"
+                            placeholder="name@example.com">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="exampleFormControlInput3">Phone No.</label>
+                        <input type="tel" name="contactNo" class="form-control" id="exampleFormControlInput3"
+                            placeholder="Enter your contact no." maxlength="10" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="datefield">Select the date</label>
+                        <input id="datefield" placeholder="" required pattern="" title="" name="dateSelected"
+                            type='date' class="form-control">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="exampleFormControlSelect1">Select Your Favourable Slot</label>
+                        <select class="form-control" name="slotSelected" id="exampleFormControlSelect1" required>
+                            <option value="" disabled selected>Select your option</option>
+                            {% for x in avlSlot %}
+                            <option name="slotSelected1">{{ x.start_time }} to {{ x.end_time }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="exampleFormControlTextarea1">Description</label>
+                        <textarea class="form-control" name="description" placeholder="Enter your message"
+                            id="exampleFormControlTextarea1" rows="3"></textarea>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="exampleFormControlInput4">Amount (INR)</label>
+                        <input class="form-control" id="exampleFormControlInput4" type="text" placeholder="₹550/-"
+                            readonly>
+                    </div>
+                </div>
+                <button type="submit" id="rzp-button1 btnSubmit" name="amt" class="btn btn-primary"
+                    onsubmit="return handle_form_submission()">Pay</button>
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+            </form>
+            {% else %}
+            <div style="text-align: center; margin-top: 150px;">
+                <h3><img src="/static/images/loginerr.png" width="40em" height="40em"> </img>Sorry, You are not
+                    accessible to
+                    this page right now!</h3>
+                <p style="font-size: 1.2rem; font-weight: 400;"><a href="{% url 'login' %}">Login required</a></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+
+        var today = new Date();
+        var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
+        var maxDate = tomorrow.toISOString().slice(0, 10);
+        var minDate = today.toISOString().slice(0, 10)
+        console.log(today)
+        document.getElementById("datefield").setAttribute("min", minDate);
+        document.getElementById("datefield").setAttribute("max", maxDate);
+
+        // var options = {
+        //     "key": "{{ rzp_test_48Z9LMTDVAN5JU }}", // Enter the Key ID generated from the Dashboard
+        //     "amount": "50000",
+        //     "name": "Acme Corp",
+        //     "description": "Test Transaction",
+        //     "image": "https://example.com/your_logo",
+        //     "order_id": "{{ order_id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        //     "handler": function (response) {
+        //         alert(response.razorpay_payment_id);
+        //         alert(response.razorpay_order_id);
+        //         alert(response.razorpay_signature)
+        //     },
+        //     "prefill": {
+        //         "name": "Gaurav Kumar",
+        //         "email": "gaurav.kumar@example.com",
+        //         "contact": "9000090000"
+        //     },
+        //     "notes": {
+        //         "address": "Razorpay Corporate Office"
+        //     },
+        //     "theme": {
+        //         "color": "#3399cc"
+        //     }
+        // };
+        // var rzp1 = new Razorpay(options);
+        // rzp1.on('payment.failed', function (response) {
+        //     document.getElementById("")
+        //     alert(response.error.code);
+        //     alert(response.error.description);
+        //     alert(response.error.source);
+        //     alert(response.error.step);
+        //     alert(response.error.reason);
+        //     alert(response.error.metadata.order_id);
+        //     alert(response.error.metadata.payment_id);
+        // });
+        // document.getElementById('rzp-button1').onclick = function (e) {
+        //     rzp1.open();
+        //     e.preventDefault();
+        // }
+
+
+    </script>
+    </div>
+    <script>
+        function handle_form_submission() {
+            alert('Form is submitted and your slot has been booked!');
+            return true;
+        }
+    </script>
+    {% endblock %}
+
+
+</body>
+
+</html>

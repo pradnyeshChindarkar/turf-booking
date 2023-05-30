@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+
+    </style>
+</head>
+
+<body>
+    {% block content %}
+    <style>
+        ::selection {
+            color: #fff;
+            background: #137200d3;
+        }
+    </style>
+    <div class="container">
+        <div>
+            <h2 style="text-align: center; color: rgb(19, 114, 0);">Get Your Turf Book</h2>
+        </div>
+
+        <div class="row">
+            {% for x in allgrounds %}
+            <div class="col-sm-4 py-4">
+                <div class="card" style="width: auto;">
+                    <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
+                    <div class="card-body">
+                        <h5 class="card-title">{{ x.name }}</h5>
+                        <p class="card-text">{{ x.ground_description }}</p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><i class="fa fa-map-marker" aria-hidden="true"></i> {{ x.address }}</li>
+                        <li class="list-group-item"><i class="fa fa-phone" aria-hidden="true"></i> +91-{{ x.phone }}</li>
+                        <!-- <li class="list-group-item">Vestibulum at eros</li> -->
+                    </ul>
+                    <div class="btnlink" style="background-color: #137200d3; cursor: pointer;">
+                        <div class="card-body text-center">
+                            <a href="form/{{ x.name }}" class="card-link" style="color: #fff;">Book this turf</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+    </div>
+
+    {% endblock %}
+</body>
+
+</html>

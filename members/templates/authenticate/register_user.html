@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Register Page</h1>
+<hr>
+<br>
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    There was an error with your form...
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+{% endif %}
+<div class="card p-4 shadow">
+    <form action="{% url 'register' %}" method="POST">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <br/>
+  <p><a href="{% url 'login' %}">Already have an account?</a></p>
+
+</div>
+{% endblock %}

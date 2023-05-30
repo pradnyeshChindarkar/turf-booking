@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+
+<body>
+  {% block content %}
+  <style>
+    body {
+      background-color: #00BF63;
+    }
+
+    a:hover {
+      text-decoration: none;
+    }
+  </style>
+  <div class="text-center d-flex flex-column justify-content-center align-items-center"
+    style="font-family: 'Anton', sans-serif; height: 70vh;">
+    <p style="font-size: 25px; margin-bottom: 0;">GOOD LUCK TEAM!</p>
+    <p style="font-size: 70px; padding: 5px 0; ">
+      Don't Stop<br />until you are<br />proud.
+    </p>
+    <div>
+      <button type="button" class="btn btn-light"
+        style="color: #000; font-size: 20px; font-family: sans-serif;border-radius: 25px;"><a href="{% url 'receipt' %}"
+          style="color: #000;">Get Receipt</a></button>&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url 'bookIt' %}"
+        style="color: aliceblue;font-size: 20px; font-family: sans-serif;">Book Another Slot?</a>
+    </div>
+  </div>
+  {% endblock %}
+</body>
+
+</html>
