@@ -18,8 +18,8 @@ class GroundAdmin(admin.ModelAdmin):
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    fields = (('name','venue'),'slot','book_date','description')
-    list_display = ('name','slot','venue','book_date')
+    fields = ('user',('name','venue'),'slot','book_date','description')
+    list_display = ('user','name','slot','venue','book_date')
     list_filter = ('book_date','venue')
     ordering = ('book_date',)
 # class BookingAdmin(admin.ModelAdmin):

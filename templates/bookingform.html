@@ -20,15 +20,15 @@
     {% block content %}
     <style>
         ::selection {
-			color: #fff;
-			background: #137200d3;
-		}
+            color: #fff;
+            background: #137200d3;
+        }
     </style>
     <div class="container">
         {% if user.is_authenticated %}
         <h3><span name="groundName">{{ selectedGround.name }}</span> {{ selectedGround.address }}</h3>
         <p>Phone: {{ selectedGround.phone }}</p>
-        <p>Back to <a href="/bookit">Bookit</a></p>
+        <p>Back to <a href="{% url 'bookIt' %}">Bookit</a></p>
         <div>
             <h2 style="text-align: center; color: #137200;">Get Your Turf Book</h2>
         </div>
@@ -36,7 +36,7 @@
         <br />
         <br />
         <div class="card p-4 shadow">
-            <form method="POST" action="{{ selectedGround.name }}/savebooking" onsubmit="handle_form_submission()">
+            <form method="POST" action="{% url 'formSub' selectedGround.name %}" onsubmit="handle_form_submission()">
                 {% csrf_token %}
                 <div class="form-row">
                     <div class="form-group col-md-6">
@@ -55,9 +55,17 @@
                             placeholder="Enter your contact no." maxlength="10" required>
                     </div>
                     <div class="form-group col-md-6">
-                        <label for="datefield">Select the date</label>
-                        <input id="datefield" placeholder="" required pattern="" title="" name="dateSelected"
-                            type='date' class="form-control">
+                        <label for="datefield">Select the day</label>
+                        <!-- <input id="datefield" placeholder="" required pattern="" title="" name="dateSelected"
+                            type='date' class="form-control"> -->
+                        <div id="myBtnContainer">
+                            <p style="background-color: #137200;" class="btn active" onclick="filterSelection('all')">
+                                Today</p>
+                            <p style="background-color: #137200d3;" class="btn" onclick="filterSelection('cars')">
+                                Tomorrow</p>
+                            <p style="background-color: #137200d3;" class="btn" onclick="filterSelection('animals')">Day
+                                After Tomorrow</p>
+                        </div>
                     </div>
                     <div class="form-group col-md-6">
                         <label for="exampleFormControlSelect1">Select Your Favourable Slot</label>
@@ -80,7 +88,7 @@
                             readonly>
                     </div>
                 </div>
-                <button type="submit" id="rzp-button1 btnSubmit" name="amt" class="btn btn-primary"
+                <button type="submit" id="rzp-button1 btnSubmit" name="submitbooking" class="btn btn-primary" onclick=""
                     onsubmit="return handle_form_submission()">Pay</button>
                 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -96,7 +104,6 @@
         </div>
     </div>
     <script>
-
         var today = new Date();
         var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
         var maxDate = tomorrow.toISOString().slice(0, 10);
@@ -145,7 +152,50 @@
         //     e.preventDefault();
         // }
 
+    </script>
+    <script>
+        filterSelection("all")
+        function filterSelection(c) {
+            var x, i;
+            x = document.getElementsByClassName("filterDiv");
+            if (c == "all") c = "";
+            for (i = 0; i < x.length; i++) {
+                w3RemoveClass(x[i], "show");
+                if (x[i].className.indexOf(c) > -1) w3AddClass(x[i], "show");
+            }
+        }
 
+        function w3AddClass(element, name) {
+            var i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                if (arr1.indexOf(arr2[i]) == -1) { element.className += " " + arr2[i]; }
+            }
+        }
+
+        function w3RemoveClass(element, name) {
+            var i, arr1, arr2;
+            arr1 = element.className.split(" ");
+            arr2 = name.split(" ");
+            for (i = 0; i < arr2.length; i++) {
+                while (arr1.indexOf(arr2[i]) > -1) {
+                    arr1.splice(arr1.indexOf(arr2[i]), 1);
+                }
+            }
+            element.className = arr1.join(" ");
+        }
+
+        // Add active class to the current button (highlight it)
+        var btnContainer = document.getElementById("myBtnContainer");
+        var btns = btnContainer.getElementsByClassName("btn");
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].addEventListener("click", function () {
+                var current = document.getElementsByClassName("active");
+                current[0].className = current[0].className.replace(" active", "");
+                this.className += " active";
+            });
+        }
     </script>
     </div>
     <script>
@@ -155,7 +205,6 @@
         }
     </script>
     {% endblock %}
-
 
 </body>
 

@@ -27,6 +27,7 @@ class MyUsers(models.Model):
 
 
 class Booking(models.Model):
+    user=models.ForeignKey(User,default=1,null=True,on_delete=models.SET_NULL)
     name = models.CharField(max_length=100)
     book_date=models.DateField()
     venue = models.ForeignKey(Ground,blank=True,null=True,on_delete=models.CASCADE)

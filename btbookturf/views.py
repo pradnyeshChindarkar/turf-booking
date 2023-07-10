@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Ground,Booking,Slot
+from django.contrib.auth.models import User
 from django.template import loader
 import razorpay
 import datetime
@@ -22,109 +23,127 @@ def index(request):
 
 
 def bookit(request):
-    ground_list = Ground.objects.all()
-    slots = Slot.objects.all()
-    template = loader.get_template('bookit.html')
-    context={
-        'allgrounds':ground_list,
-        'allslots':slots,
-    }
-    return HttpResponse(template.render(context,request))
+    exuser=request.user
+    print(exuser)
+    print(exuser.pk)
+    try:
+        exuser=request.user
+        Ex_User = User.objects.get(pk=exuser.pk)
+        print(Ex_User.pk)
+        ground_list = Ground.objects.all()
+        slots = Slot.objects.all()
+        bookingsByUser=Booking.objects.filter(user=exuser)
+        print(bookingsByUser)
+        slotsToday=datetime.date.today()
+        slotsTomorrow=datetime.date.today()+datetime.timedelta(1)
+        slotsDayAfTomo=datetime.date.today()+datetime.timedelta(2)
 
-
-def available_slots(request):
-    slotBooked=Booking.objects.filter(venue__name=spec_ground).values('slot__start_time','slot__end_time')
-    allSlots=Slot.objects.values('start_time')
-    # ***** SLOT LOGIC START******
-    for slot in allSlots.values():
-        is_open = True
-        for booked_slot in slotBooked.values():
-            if slot['id'] == booked_slot['slot_id']:
-                is_open = False
-                break
-        if is_open:
-            global avlSlots
-            avlSlots=dict(slot)
+        bookingsToday=Booking.objects.filter(book_date=slotsToday)
+        bookingsTomorrow=Booking.objects.filter(book_date=slotsTomorrow)
+        bookingsAfTomorrow=Booking.objects.filter(book_date=slotsDayAfTomo)
+        
+        print("Today's booking: ",bookingsToday)
+        print("bookingsTomorrow: ",bookingsTomorrow)
+        print("bookingsAfTomorrow: ",bookingsAfTomorrow)
+        context={
+            'allgrounds':ground_list,
+            'allslots':slots,
+            'userName':exuser,
             
-            print("open -->", slot)
-    print(avlSlots)
+        }
+        template = loader.get_template('bookit.html')
+        return HttpResponse(template.render(context,request))
+    except Exception as e:
+        print(e)
+        return redirect('login')
 
-    # ***** SLOT LOGIC END******
-    context={
-            "avlSlot":avlSlots,
-    }
-    template = loader.get_template('bookingform.html')
-    return HttpResponse(template.render(context ,request))
 
     
 def form(request,name):
-    # client = razorpay.Client(auth=(RAZORPAY_API_KEY, RAZORPAY_API_SECRET_KEY))
-    # payment_order = client.order.create({
-    #     "amount": 500000,
-    #     "currency": "INR",
-    #     "payment_capture": "1",
-    #     "receipt": "order_rcptid_11",    })
-    # payment_order_id = payment_order['id']
-    # amount = 1
-    # -----------
+    try:
+        exuser=request.user
+        Ex_User = User.objects.get(pk=exuser.pk)
+        
+        spec_ground = Ground.objects.get(name=name)
+        slots = Slot.objects.all()
+        slots1=Slot()
+        slots2=Slot.objects.values('id')
+        booking=Booking()
+        abc1=Booking.objects.filter(venue__name=spec_ground).values('slot__id')
+        
+        slotBooked=Booking.objects.filter(venue__name=spec_ground).values('slot__start_time','slot__end_time')
+        allSlots=Slot.objects.values('start_time')
+        
+        # ====SLOTS AS PER DAYS====
+        # ===LOGIC TODAY SLOT===
+        slotsToday=datetime.date.today()
+        bookingsToday=Booking.objects.filter(book_date=slotsToday).values('slot__start_time','slot__end_time')
+        avlSlotsToday=[]
+        for slot in allSlots.values():
+            is_open = True
+            for booked_slot in bookingsToday.values():
+                if slot['id'] == booked_slot['slot_id']:
+                    is_open = False
+                    break
+            if is_open:
+                avlSlotToday = slot.copy()
+                avlSlotsToday.append(avlSlotToday)
+                print("open -->", slot)
+        print("-----")
 
-    # generated_signature = payment_order_id + "|" + razorpay_payment_id, secret
-    # print(generated_signature)
+        # ===LOGIC TODAY SLOT===
 
-    # -----------
+        # ===LOGIC TOMORROW SLOT===
+        slotsTomorrow=datetime.date.today()+datetime.timedelta(1)
+        bookingsTomorrow=Booking.objects.filter(book_date=slotsTomorrow)
+        avlSlotsTomorrow=[]
+        for slot in allSlots.values():
+            is_open = True
+            for booked_slot in bookingsTomorrow.values():
+                if slot['id'] == booked_slot['slot_id']:
+                    is_open = False
+                    break
+            if is_open:
+                avlSlotTomorrow = slot.copy()
+                avlSlotsTomorrow.append(avlSlotTomorrow)
+                print("open -->", slot)
+        print("-----")
 
-    # context={
-    #     'amount':amount,
-    #     'api_key':RAZORPAY_API_KEY,
-    #     'order_id':payment_order_id,
-    # }
-    # template = loader.get_template('payment.html')
+        # ===LOGIC TOMORROW SLOT===
 
-    # return render(request, 'payment_form.html')
-    
-    spec_ground = Ground.objects.get(name=name)
-    slots = Slot.objects.all()
-    slots1=Slot()
-    slots2=Slot.objects.values('id')
-    booking=Booking()
-    abc1=Booking.objects.filter(venue__name=spec_ground).values('slot__id')
-    
-    slotBooked=Booking.objects.filter(venue__name=spec_ground).values('slot__start_time','slot__end_time')
-    allSlots=Slot.objects.values('start_time')
+        # ===LOGIC DAYfTom SLOT===
+        slotsDayAfTomo=datetime.date.today()+datetime.timedelta(2)
+        bookingsAfTomorrow=Booking.objects.filter(book_date=slotsDayAfTomo)
+        avlSlotsDayfT=[]
+        for slot in allSlots.values():
+            is_open = True
+            for booked_slot in bookingsAfTomorrow.values():
+                if slot['id'] == booked_slot['slot_id']:
+                    is_open = False
+                    break
+            if is_open:
+                avlSlotDayfT = slot.copy()
+                avlSlotsDayfT.append(avlSlotDayfT)
+                print("open -->", slot)
+        print("-----")
+        # ===LOGIC DAYfTom SLOT===
+        # ====SLOTS AS PER LOGIC====
 
-    # ***** SLOT LOGIC ******
-    avlSlots=[]
-    for slot in allSlots.values():
-        is_open = True
-        for booked_slot in slotBooked.values():
-            if slot['id'] == booked_slot['slot_id']:
-                is_open = False
-                break
-        if is_open:
-            avlSlot = slot.copy()
-            avlSlots.append(avlSlot)
-            print("open -->", slot)
-
-
-    # ***** SLOT LOGIC ******
-
-    # ***** FORM/PAYMENT LOGIC ******
-
-    # if request.method == 'POST':
-    #     amount = request.POST['amt']
-    #     # Here you can simulate the payment process without actually charging any money.
-    #     # You can use a message to indicate the success or failure of the payment.
-    #     success_message = f"Payment of {amount} was successful!"
-    #     failure_message = f"Payment of {amount} failed."
-        # success = False # Set this to False if payment fails
-        # if success:
-        #     return redirect('/bookit')
-        # else:
-        #     return redirect('/')
-    # ***** FORM/PAYMENT LOGIC ******
-    
-    context={
+        # ***** SLOT LOGIC ******
+        avlSlots=[]
+        for slot in allSlots.values():
+            is_open = True
+            for booked_slot in slotBooked.values():
+                if slot['id'] == booked_slot['slot_id']:
+                    is_open = False
+                    break
+            if is_open:
+                avlSlot = slot.copy()
+                avlSlots.append(avlSlot)
+                print("open -->", slot)
+        context={
         'avlSlot':avlSlots,
+        'avlSlotsToday':avlSlotsToday,
         # 'slots2':abc1,
         # "slotsBook":abc,
         # 'amount':amount,
@@ -135,11 +154,20 @@ def form(request,name):
         # 'order_id':payment_order_id,
         'selectedGround':spec_ground,
         'allslots':slots,
-    }
-    template = loader.get_template('bookingform.html')
-    return HttpResponse(template.render(context,request))
+        'user':exuser,
+        }
+
+        template = loader.get_template('bookingform.html')
+        return HttpResponse(template.render(context,request))
+    
+    except:
+        return redirect('login')
+    
+    
 
 def saveBooking(request,name):
+    exuser=request.user
+    Ex_User = User.objects.get(pk=exuser.pk)
     spec_ground = Ground.objects.get(name=name)
     context={
         # 'amount':amount,
@@ -149,6 +177,7 @@ def saveBooking(request,name):
         # 'allslots':slots,
     }
     if request.method=="POST":
+        user=exuser
         name1=request.POST.get('name')
         email=request.POST.get('email')
         phone=request.POST.get('contactNo')
@@ -161,7 +190,7 @@ def saveBooking(request,name):
         data=name1,email,phone,bookDate,desc,slotSelected,spec_ground
         print(data)
         global insertDb
-        insertDb=Booking(name=name1,book_date=bookDate,venue=spec_ground,description=desc,slot=slot)
+        insertDb=Booking(user=user,name=name1,book_date=bookDate,venue=spec_ground,description=desc,slot=slot)
         insertDb.save()
     
     template = loader.get_template('payment_success.html')
@@ -169,6 +198,7 @@ def saveBooking(request,name):
 
 
 def book_receipt(request):
+
     x=datetime.datetime.now()
     # PDF Receipt Genertor
     buf = io.BytesIO()
