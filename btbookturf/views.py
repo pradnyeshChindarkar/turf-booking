@@ -77,7 +77,7 @@ def form(request,name):
         # ====SLOTS AS PER DAYS====
         # ===LOGIC TODAY SLOT===
         slotsToday=datetime.date.today()
-        bookingsToday=Booking.objects.filter(book_date=slotsToday).values('slot__start_time','slot__end_time')
+        bookingsToday=Booking.objects.filter(book_date=slotsToday,venue__name=spec_ground)
         avlSlotsToday=[]
         for slot in allSlots.values():
             is_open = True
@@ -95,7 +95,7 @@ def form(request,name):
 
         # ===LOGIC TOMORROW SLOT===
         slotsTomorrow=datetime.date.today()+datetime.timedelta(1)
-        bookingsTomorrow=Booking.objects.filter(book_date=slotsTomorrow)
+        bookingsTomorrow=Booking.objects.filter(book_date=slotsTomorrow,venue__name=spec_ground)
         avlSlotsTomorrow=[]
         for slot in allSlots.values():
             is_open = True
@@ -113,7 +113,7 @@ def form(request,name):
 
         # ===LOGIC DAYfTom SLOT===
         slotsDayAfTomo=datetime.date.today()+datetime.timedelta(2)
-        bookingsAfTomorrow=Booking.objects.filter(book_date=slotsDayAfTomo)
+        bookingsAfTomorrow=Booking.objects.filter(book_date=slotsDayAfTomo,venue__name=spec_ground)
         avlSlotsDayfT=[]
         for slot in allSlots.values():
             is_open = True
@@ -144,6 +144,8 @@ def form(request,name):
         context={
         'avlSlot':avlSlots,
         'avlSlotsToday':avlSlotsToday,
+        'avlSlotsTomorrow':avlSlotsTomorrow,
+        'avlSlotsDayfT':avlSlotsDayfT,
         # 'slots2':abc1,
         # "slotsBook":abc,
         # 'amount':amount,
